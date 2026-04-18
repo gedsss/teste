@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingStatus {
+  ativo
+  vendido
+  pausado
+}
+
+enum FuelType {
+  flex
+  gasolina
+  etanol
+  diesel
+  eletrico
+  hibrido
+}
+
+enum TransmissionType {
+  manual
+  automatico
+  cvt
+  automatizado
+}
+
+enum Condition {
+  novo
+  seminovo
+  usado
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  label    String
+  icon     String
+  listings Listing[]
+
+  @@map("categories")
+}
+
+model Seller {
+  id       String    @id @default(cuid())
+  name     String
+  phone    String
+  rating   Float     @default(0)
+  since    String
+  listings Listing[]
+
+  @@map("sellers")
+}
+
+model Listing {
+  id           String           @id @default(cuid())
+  title        String
+  type         String           @default("venda")
+  price        Float
+  priceUnit    String?
+  year         Int
+  brand        String
+  model        String
+  km           Int?
+  fuel         FuelType
+  transmission TransmissionType
+  color        String
+  location     String
+  state        String
+  description  String
+  images       String[]
+  status       ListingStatus    @default(ativo)
+  featured     Boolean          @default(false)
+  condition    Condition
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  sellerId String
+  seller   Seller @relation(fields: [sellerId], references: [id])
+
+  @@map("listings")
+}
